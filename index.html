@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My experiment</title>
+    <script src="https://unpkg.com/jspsych@7.3.3"></script>
+    <script src="https://younesstrittmatter.github.io/dawsTwoStep/two-step.js"></script>
+    <link href="https://unpkg.com/jspsych@7.3.3/css/jspsych.css" rel="stylesheet" type="text/css"/>
+</head>
+<body></body>
+<script>
+    const TRIALS = 100
+    const SEED = Math.random()
+
+
+    jsPsych = initJsPsych({
+            on_finish: function () {
+                jsPsych.data.get().filter({trial_type: 'dawsToStep'}).localSave('csv', 'experiment_data.csv');
+            }
+        }
+    )
+
+    // Logic for the positions
+    let stepOnePos = []
+    let stepOneTwoPos = []
+    let stepTwoTwoPos = []
+    for (let i = 0; i < Math.floor(TRIALS * .5); i++) {
+        stepOnePos.push([0, 1])
+    }
+    for (let i = Math.floor(TRIALS * .5); i < TRIALS; i++) {
+        stepOnePos.push([1, 0])
+    }
+
+    for (let i = 0; i < Math.floor(TRIALS * .5 * .7); i++) {
+        stepOneTwoPos.push([0, 1])
+        stepTwoTwoPos.push([2, 3])
+
+    }
+    for (let i = Math.floor(TRIALS * .5 * .7); i < TRIALS; i++) {
+        stepOneTwoPos.push([1, 0])
+        stepTwoTwoPos.push([3, 2])
+    }
+
+    for (let i = 0; i < Math.floor(TRIALS * .5 * .3); i++) {
+        stepOneTwoPos.push([2, 3])
+        stepTwoTwoPos.push([0, 1])
+    }
+    for (let i = Math.floor(TRIALS * .5 * .3); i < TRIALS; i++) {
+        stepOneTwoPos.push([3, 2])
+        stepTwoTwoPos.push([1, 0])
+    }
+
+    stepOnePos = shuffle(stepOnePos)
+    stepOneTwoPos = shuffle(stepOneTwoPos)
+    stepTwoTwoPos = shuffle(stepTwoTwoPos)
+
+    // logic for the reward
+    let rewardProbability = [
+        .25 + Math.random() * .5,
+        .25 + Math.random() * .5,
+        .25 + Math.random() * .5,
+        .25 + Math.random() * .5,
+    ]; // Start at 0.5
+    let rewardProbabilityArray = []
+    let reward = []
+    let standardDeviation = 0.025;
+    const minProbability = 0.25;
+    const maxProbability = 0.75;
+
+    // Simulating the random walk and populating the reward array
+    for (let i = 0; i < TRIALS; i++) {
+        let current_reward = []
+        for (let j = 0; j < 4; j++) {
+            rewardProbability[j] = randomWalkWithBounds(rewardProbability[j], standardDeviation, minProbability, maxProbability);
+            current_reward.push(Math.random() < rewardProbability[j])
+        }
+        rewardProbabilityArray.push([...rewardProbability])
+        reward.push(current_reward)
+    }
+
+    timeline = []
+    for (let i = 0; i < TRIALS; i++) {
+        let s1Pos = stepOnePos[i]
+        let s12Pos = stepOneTwoPos[i]
+        let s22Pos = stepTwoTwoPos[i]
+        let currentReward = reward[i]
+        timeline.push(
+            {
+                type: jsPsychDawsTwoStep,
+                stepOne: s1Pos,
+                stepOneTwo: s12Pos,
+                stepTwoTwo: s22Pos,
+                reward: currentReward,
+                seed: SEED
+            })
+    }
+
+    jsPsych.run(timeline);
+
+
+    function shuffle(array) {
+        let currentIndex = array.length, randomIndex;
+
+        // While there remain elements to shuffle.
+        while (currentIndex > 0) {
+
+            // Pick a remaining element.
+            randomIndex = Math.floor(Math.random() * currentIndex);
+            currentIndex--;
+
+            // And swap it with the current element.
+            [array[currentIndex], array[randomIndex]] = [
+                array[randomIndex], array[currentIndex]];
+        }
+
+        return array;
+    }
+
+    function getGaussianRandom(sd) {
+        let u = 0, v = 0;
+        while (u === 0) u = Math.random(); //Converting [0,1) to (0,1)
+        while (v === 0) v = Math.random();
+        return Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v) * sd;
+    }
+
+    function randomWalkWithBounds(start, sd, min, max) {
+        let result = start;
+
+        // Perform a step in the random walk.
+        result += getGaussianRandom(sd);
+
+        // Ensure the new value is within the specified bounds.
+        if (result > max) {
+            result = max;
+        } else if (result < min) {
+            result = min;
+        }
+
+        return result;
+    }
+
+</script>
+</html>
