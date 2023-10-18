@@ -250,7 +250,12 @@
             let responded_first = false
             let response_second = false
 
-            let trial_data = {}
+            let trial_data = {
+                'stepOne_Param': JSON.stringify(trial['stepOne']),
+                'stepOneTwo_Param': JSON.stringify(trial['stepOneTwo']),
+                'stepTwoTwo_Param': JSON.stringify(trial['stepTwoTwo']),
+                'rewards_Param': JSON.stringify(trial['reward'])
+            }
 
 
             const after_response_one = (identifier, i) => {
@@ -258,7 +263,7 @@
                     return
                 }
 
-                trial_data['step_one'] = trial.stepOne[i]
+                trial_data['stepOneChoice'] = trial.stepOne[i]
                 responded_first = true
 
                 let door = display_element.querySelector("#step-one-door-" + identifier)
@@ -285,6 +290,9 @@
                     let reward = display_element.querySelector("#reward-" + identifier)
                     reward.style.visibility = 'visible'
                 }
+
+                trial_data['stepTwoChoice'] = index
+                trial_data['reward'] = trial.reward[index]
 
                 setTimeout(() => {
                     display_element.innerHTML = ''

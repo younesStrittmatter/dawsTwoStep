@@ -8,13 +8,13 @@
 </head>
 <body></body>
 <script>
-    const TRIALS = 100
+    const TRIALS = 200
     const SEED = Math.random()
 
 
     jsPsych = initJsPsych({
             on_finish: function () {
-                jsPsych.data.get().filter({trial_type: 'dawsToStep'}).localSave('csv', 'experiment_data.csv');
+                jsPsych.data.get().filter({trial_type: 'dawsTwoStep'}).localSave('csv', 'experiment_data.csv');
             }
         }
     )
@@ -83,6 +83,8 @@
         let s12Pos = stepOneTwoPos[i]
         let s22Pos = stepTwoTwoPos[i]
         let currentReward = reward[i]
+        let isHighProbOne = (s12Pos[0] === 0 || s12Pos[0] === 1)
+        let isHighProbTwo = (s22Pos[0] === 2 || s22Pos[0] === 2)
         timeline.push(
             {
                 type: jsPsychDawsTwoStep,
@@ -90,7 +92,12 @@
                 stepOneTwo: s12Pos,
                 stepTwoTwo: s22Pos,
                 reward: currentReward,
-                seed: SEED
+                seed: SEED,
+                data: {
+                    rewardProbabilities: JSON.stringify(rewardProbabilityArray[i]),
+                    isHighProbOne: isHighProbOne,
+                    isHighProbTwo: isHighProbTwo
+                }
             })
     }
 
