@@ -30,21 +30,24 @@
         stepOnePos.push([1, 0])
     }
 
-    for (let i = 0; i < Math.floor(TRIALS * .5 * .7); i++) {
+    let HIGH_PROB_TRIALS = 0.7 * TRIALS
+    let LOW_PROB_TRIALS = 0.3 * TRIALS
+
+    for (let i = 0; i < Math.floor(HIGH_PROB_TRIALS * .5); i++) {
         stepOneTwoPos.push([0, 1])
         stepTwoTwoPos.push([2, 3])
 
     }
-    for (let i = Math.floor(TRIALS * .5 * .7); i < TRIALS; i++) {
+    for (let i = Math.floor(HIGH_PROB_TRIALS * .5); i < HIGH_PROB_TRIALS; i++) {
         stepOneTwoPos.push([1, 0])
         stepTwoTwoPos.push([3, 2])
     }
 
-    for (let i = 0; i < Math.floor(TRIALS * .5 * .3); i++) {
+    for (let i = 0; i < Math.floor(LOW_PROB_TRIALS * .5); i++) {
         stepOneTwoPos.push([2, 3])
         stepTwoTwoPos.push([0, 1])
     }
-    for (let i = Math.floor(TRIALS * .5 * .3); i < TRIALS; i++) {
+    for (let i = Math.floor(LOW_PROB_TRIALS * .5); i < LOW_PROB_TRIALS; i++) {
         stepOneTwoPos.push([3, 2])
         stepTwoTwoPos.push([1, 0])
     }
